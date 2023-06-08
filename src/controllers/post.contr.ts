@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import Post from "../schemas/Post.schema.js";
-import { IPost } from '../interface/interface.js';
+import { IPost, IUser } from '../interface/interface.js';
 import UserSchema from '../schemas/User.schema.js';
 import { JWT } from '../utils/jwt.js';
 class PostController {
@@ -40,8 +40,8 @@ class PostController {
                     error: 'unknown'
                 });
             }
-            const posts: IPost[] = await Post.find();
-            res.json(posts);
+            const user: IUser | null = await UserSchema.findById(id).populate("posts");
+            res.json(user);
         } catch (error) {
             res.status(500).json({ error: 'Postlarni olishda xatolik yuz berdi' });
         }
@@ -49,6 +49,18 @@ class PostController {
     // Postni olish
     async getPostById(req: Request, res: Response) {
         try {
+            // let token: any = req.headers.token;
+            // if (!token) {
+            //     return res.status(401).json({
+            //         error: 'Token not found'
+            //     });
+            // }
+            // const id = JWT.VERIFY(token).id;
+            // if (!id) {
+            //     return res.status(401).json({
+            //         error: 'unknown'
+            //     });
+            // }
             const post: IPost | null = await Post.findById(req.params.id);
             if (post) {
                 res.json(post);

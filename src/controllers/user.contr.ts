@@ -155,20 +155,6 @@ class UserController {
                 token: JWT.SIGN({ id: user ? user._id : null }),
                 data: user
             });
-            // else {
-            //     if (user.password === sha256(password)) {
-            //         res.status(201).json({
-            //             success: true,
-            //             token: JWT.SIGN({ id: user._id }),
-            //             data: user
-            //         });
-            //     } else {
-            //         res.status(401).json({
-            //             success: false,
-            //             error: 'Invalid password'
-            //         });
-            //     }
-            // }
         } catch (error) {
             console.log('error :', error);
             res.status(500).json({ error: 'Foydalanuvchi qo\'shishda xatolik yuz berdi' });
