@@ -1,22 +1,45 @@
 import { Request, Response } from 'express';
 import Post from "../schemas/Post.schema.js";
 import { IPost } from '../interface/interface.js';
-
+import UserSchema from '../schemas/User.schema.js';
+import { JWT } from '../utils/jwt.js';
 class PostController {
-    // Yeni post yaratish
     async createPost(req: Request, res: Response) {
         try {
-            const { title, content, userId } = req.body;
-            const post: IPost = new Post({ title, content, user: userId });
+            let token: any = req.headers.token;
+            if (!token) {
+                return res.status(401).json({
+                    error: 'Token not found'
+                });
+            }
+            const id = JWT.VERIFY(token).id;
+            const { title, content } = req.body;
+            const post: IPost = new Post({ title, content, user: id });
+            await UserSchema.findByIdAndUpdate(id, {
+                $push: {
+                    posts: post._id
+                }
+            });
             await post.save();
             res.status(201).json(post);
         } catch (error) {
             res.status(500).json({ error: 'Post yaratishda xatolik yuz berdi' });
         }
     }
-    // Postlarni olish
-    async getPosts(_: Request, res: Response) {
+    async getPosts(req: Request, res: Response) {
         try {
+            let token: any = req.headers.token;
+            if (!token) {
+                return res.status(401).json({
+                    error: 'Token not found'
+                });
+            }
+            const id = JWT.VERIFY(token).id;
+            if (!id) {
+                return res.status(401).json({
+                    error: 'unknown'
+                });
+            }
             const posts: IPost[] = await Post.find();
             res.json(posts);
         } catch (error) {
