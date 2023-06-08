@@ -8,5 +8,6 @@ export interface IPost extends Document {
 export interface IUser extends Document {
     name: string;
     email: string;
+    password: string;
     posts: mongoose.Types.ObjectId[];
 } 

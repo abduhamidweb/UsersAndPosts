@@ -17,6 +17,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/mongoose": "^5.11.97",
     "@types/nodemailer": "^6.4.8",
+    "@types/sha256": "^0.2.0",
     "@types/validator": "^13.7.17",
     "config": "^3.3.9",
     "cors": "^2.8.5",

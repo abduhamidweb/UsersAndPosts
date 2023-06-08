@@ -30,12 +30,12 @@ const User: Schema = new Schema({
         type: String,
         required: true,
         minlength: 8,
-        validate: {
-            validator: (value: any) => {
-                return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value);
-            },
-            message: 'Password must contain at least 8 characters including uppercase, lowercase, and numeric characters'
-        }
+        // validate: {
+        //     validator: (value: any) => {
+        //         return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value);
+        //     },
+        //     message: 'Password must contain at least 8 characters including uppercase, lowercase, and numeric characters'
+        // }
     },
     posts: [{
         type: mongoose.Types.ObjectId,
