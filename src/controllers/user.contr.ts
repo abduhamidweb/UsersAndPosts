@@ -47,11 +47,6 @@ class UserController {
     async getUsers(req: Request, res: Response) {
         try {
             let token: any = req.headers.token;
-            if (!token) {
-                return res.status(401).json({
-                    error: 'Token not found'
-                });
-            }
             const userId = JWT.VERIFY(token).id;
             // const user: IUser | null = await User.findById(userId);
             const users: IUser[] | null = await User.find();
@@ -69,7 +64,7 @@ class UserController {
             //         error: 'Yaroqsiz token not found'
             //     });
             // }
-            
+
             const user: IUser | null = await User.findById(req.params.id).populate('posts');
             if (user) {
                 res.json(user);
@@ -83,7 +78,7 @@ class UserController {
     // Foydalanuvchini yangilash
     async updateUser(req: Request, res: Response) {
         try {
-            const { name, email } = req.body;
+            const { name, email, password } = req.body;
             let token: any = req.headers.token;
             const decodedToken = JWT.VERIFY(token).id;
             if (!(decodedToken == req.params.id)) {
@@ -91,7 +86,7 @@ class UserController {
                     error: 'Siz faqat o\'zingizning ma\'lumotlaringizni o\'zgartira olasiz'
                 });
             }
-            const user: IUser | null = await User.findByIdAndUpdate(req.params.id, { name, email }, { new: true });
+            const user: IUser | null = await User.findByIdAndUpdate(req.params.id, { name, password, email }, { new: true });
             if (user) {
                 res.json(user);
             } else {

@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 // Elektron pochta yuborish funksiyasi
-export const sendConfirmationEmail = async (userEmail:string) => {
+export const sendConfirmationEmail = async (userEmail: string) => {
     const confirmationCode = generateCode(); // Tasdiqlash kodi generatsiyalansin
     const mailOptions = {
         from: 'codecraftersteeam@gmail.com',
