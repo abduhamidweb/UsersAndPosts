@@ -6,7 +6,7 @@
   "main": "dist/server/server.js",
   "scripts": {
     "start": "node dist/server/server.js",
-    "dev": "nodemon --ext '*' -e ./src -x npm run watch:server",
+    "dev": "nodemon --ext '*' -e ts -w ./src -x npm run watch:server",
     "test": "ts-node-esm  src/server/server.ts",
     "watch:server": "ts-node-esm src/server/server.ts"
   },
