@@ -104,7 +104,7 @@ class PostController {
             }
             let post: IPost | null = await Post.findById(req.params.id);
             if (post && post.user == id) {
-                const post: IPost | null = await Post.findByIdAndDelete(req.params.id);
+                const post2: IPost | null = await Post.findByIdAndDelete(req.params.id);
                 res.json({ message: 'Post o\'chirildi' });
             } else {
                 res.status(404).json({ error: 'Post topilmadi' });
