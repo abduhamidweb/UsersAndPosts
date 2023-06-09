@@ -11,4 +11,4 @@ app.use('/post', postRoutes);
 app.use(errorMiddleware);
 connectToDatabase().then(() => {
     app.listen(PORT, () => console.log("Server listening on port" + PORT));
-});  
+});    

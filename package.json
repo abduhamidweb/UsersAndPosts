@@ -6,8 +6,9 @@
   "main": "dist/server/server.js",
   "scripts": {
     "start": "node dist/server/server.js",
-    "dev": "nodemon  dist/server/server.js",
-    "test": "ts-node-esm  src/server/server.ts"
+    "dev": "nodemon --ext '*' -e ./src -x npm run watch:server",
+    "test": "ts-node-esm  src/server/server.ts",
+    "watch:server": "ts-node-esm src/server/server.ts"
   },
   "keywords": [],
   "author": "",
