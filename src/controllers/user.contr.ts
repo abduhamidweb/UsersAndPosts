@@ -53,8 +53,9 @@ class UserController {
                 });
             }
             const userId = JWT.VERIFY(token).id;
-            const user: IUser | null = await User.findById(userId);
-            res.json(user);
+            // const user: IUser | null = await User.findById(userId);
+            const users: IUser[] | null = await User.find();
+            res.json(users);
         } catch (error) {
             res.status(500).json({ error: 'Foydalanuvchilarni olishda xatolik yuz berdi' });
         }
@@ -63,12 +64,13 @@ class UserController {
         try {
             let token: any = req.headers.token;
             const userId = JWT.VERIFY(token).id;
-            if (!(userId == req.params.id)) {
-                return res.status(401).json({
-                    error: 'Yaroqsiz token not found'
-                });
-            }
-            const user: IUser | null = await User.findById(req.params.id);
+            // if (!(userId == req.params.id)) {
+            //     return res.status(401).json({
+            //         error: 'Yaroqsiz token not found'
+            //     });
+            // }
+            
+            const user: IUser | null = await User.findById(req.params.id).populate('posts');
             if (user) {
                 res.json(user);
             } else {

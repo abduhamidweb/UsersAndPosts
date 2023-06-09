@@ -35,8 +35,9 @@ class PostController {
                     error: 'unknown'
                 });
             }
-            let posts: IPost[] | null = await Post.find({ user: id });
-            res.json(posts);
+            // let posts: IPost[] | null = await Post.find({ user: id });
+            let postAll: IPost[] | null = await Post.find();
+            res.json(postAll);
         } catch (error) {
             res.status(500).json({ error: 'Postlarni olishda xatolik yuz berdi' });
         }
@@ -52,8 +53,13 @@ class PostController {
                     error: 'unknown'
                 });
             }
-            const post: IPost | null = await Post.findById(req.params.id);
-            if (post && post.user == id) {
+            const post: IPost | null = await Post.findById(req.params.id).populate('user');
+            // if (post && post.user == id) {
+            //     res.json(post);
+            // } else {
+            //     res.status(404).json({ error: 'Post topilmadi' });
+            // }
+            if (post) {
                 res.json(post);
             } else {
                 res.status(404).json({ error: 'Post topilmadi' });
