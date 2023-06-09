@@ -49,20 +49,20 @@ class PostController {
     // Postni olish
     async getPostById(req: Request, res: Response) {
         try {
-            // let token: any = req.headers.token;
-            // if (!token) {
-            //     return res.status(401).json({
-            //         error: 'Token not found'
-            //     });
-            // }
-            // const id = JWT.VERIFY(token).id;
-            // if (!id) {
-            //     return res.status(401).json({
-            //         error: 'unknown'
-            //     });
-            // }
+            let token: any = req.headers.token;
+            if (!token) {
+                return res.status(401).json({
+                    error: 'Token not found'
+                });
+            }
+            const id = JWT.VERIFY(token).id;
+            if (!id) {
+                return res.status(401).json({
+                    error: 'unknown'
+                });
+            }
             const post: IPost | null = await Post.findById(req.params.id);
-            if (post) {
+            if (post && post.user == id) {
                 res.json(post);
             } else {
                 res.status(404).json({ error: 'Post topilmadi' });

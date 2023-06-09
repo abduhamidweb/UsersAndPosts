@@ -4,6 +4,9 @@ import User from '../schemas/User.schema.js';
 import { sendConfirmationEmail } from '../utils/nodemailer.js';
 import { JWT } from '../utils/jwt.js';
 import sha256 from "sha256"
+import redis from "redis";
+const client = redis.createClient();
+client.connect();
 class UserController {
     // Yeni foydalanuvchi qo'shish 
     async createUser(req: Request, res: Response) {
@@ -12,22 +15,21 @@ class UserController {
             // Birinchi marta post qilganda foydalanuvchi ma'lumotlarini yuborish
             if (!confirmationCode) {
                 const generatedConfirmationCode = await sendConfirmationEmail(email);
+                await client.set(email, generatedConfirmationCode)
                 return res.status(200).json({
                     success: true,
                     message: "Foydalanuvchi ma'lumotlari yuborildi. Tasdiqlash kodi yuborildi",
                     confirmationCode: generatedConfirmationCode // Tasdiqlash kodi javob qaytariladi
                 });
             }
-
             // Tasdiqlash kodi tekshirish
-            if (confirmationCode !== req.body.confirmationCode) {
+            if (confirmationCode !== await client.get(email)) {
                 return res.status(400).json({
                     success: false,
                     error: "Noto'g'ri tasdiqlash kodi"
                 });
             }
             const user: IUser = new User({ name, email, password: sha256(password) });
-            console.log('user :', user);
             await user.save();
             res.status(201).json({
                 success: true,
@@ -36,7 +38,6 @@ class UserController {
                 }),
                 data: user
             });
-
         } catch (error) {
             console.log('error :', error);
             res.status(500).json({ error: 'Foydalanuvchi qo\'shishda xatolik yuz berdi' });
@@ -45,14 +46,28 @@ class UserController {
     // Foydalanuvchilarni olish
     async getUsers(req: Request, res: Response) {
         try {
-            const users: IUser[] = await User.find();
-            res.json(users);
+            let token: any = req.headers.token;
+            if (!token) {
+                return res.status(401).json({
+                    error: 'Token not found'
+                });
+            }
+            const userId = JWT.VERIFY(token).id;
+            const user: IUser | null = await User.findById(userId);
+            res.json(user);
         } catch (error) {
             res.status(500).json({ error: 'Foydalanuvchilarni olishda xatolik yuz berdi' });
         }
     }
     async getUserById(req: Request, res: Response) {
         try {
+            let token: any = req.headers.token;
+            const userId = JWT.VERIFY(token).id;
+            if (!(userId == req.params.id)) {
+                return res.status(401).json({
+                    error: 'Yaroqsiz token not found'
+                });
+            }
             const user: IUser | null = await User.findById(req.params.id);
             if (user) {
                 res.json(user);
@@ -67,6 +82,13 @@ class UserController {
     async updateUser(req: Request, res: Response) {
         try {
             const { name, email } = req.body;
+            let token: any = req.headers.token;
+            const decodedToken = JWT.VERIFY(token).id;
+            if (!(decodedToken == req.params.id)) {
+                return res.status(401).json({
+                    error: 'Siz faqat o\'zingizning ma\'lumotlaringizni o\'zgartira olasiz'
+                });
+            }
             const user: IUser | null = await User.findByIdAndUpdate(req.params.id, { name, email }, { new: true });
             if (user) {
                 res.json(user);
@@ -80,6 +102,13 @@ class UserController {
     // Foydalanuvchini o'chirish
     async deleteUser(req: Request, res: Response) {
         try {
+            let token: any = req.headers.token;
+            const decodedToken = JWT.VERIFY(token).id;
+            if (!(decodedToken == req.params.id)) {
+                return res.status(401).json({
+                    error: 'Siz faqat o\'zingizning ma\'lumotlaringizni o\'zgartira olasiz'
+                });
+            }
             const user: IUser | null = await User.findByIdAndDelete(req.params.id);
             if (user) {
                 res.json({ message: 'Foydalanuvchi o\'chirildi' });
@@ -90,7 +119,7 @@ class UserController {
             res.status(500).json({ error: 'Foydalanuvchini o\'chirishda xatolik yuz berdi' });
         }
     }
-    async login(req: Request, res: Response): Promise<void> {
+    async login(req: Request, res: Response) {
         try {
             const { email, password } = req.body;
             const user: IUser | null = await User.findOne({ email });
@@ -122,19 +151,18 @@ class UserController {
     }
     async forget(req: Request, res: Response) {
         try {
-            const { email, password, confirmationCode } = req.body;
-            // Birinchi marta post qilganda foydalanuvchi ma'lumotlarini yuborish
+            const { email, confirmationCode } = req.body;
             if (!confirmationCode) {
                 const generatedConfirmationCode = await sendConfirmationEmail(email);
+                await client.set(email, generatedConfirmationCode)
                 return res.status(200).json({
                     success: true,
                     message: "Foydalanuvchi ma'lumotlari yuborildi. Tasdiqlash kodi yuborildi",
                     confirmationCode: generatedConfirmationCode // Tasdiqlash kodi javob qaytariladi
                 });
             }
-
             // Tasdiqlash kodi tekshirish
-            if (confirmationCode !== req.body.confirmationCode) {
+            if (confirmationCode !== await client.get(email)) {
                 return res.status(400).json({
                     success: false,
                     error: "Noto'g'ri tasdiqlash kodi"

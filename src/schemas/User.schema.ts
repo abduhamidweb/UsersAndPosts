@@ -29,7 +29,7 @@ const User: Schema = new Schema({
     password: {
         type: String,
         required: true,
-        minlength: 8,
+        minlength: 4,
         // validate: {
         //     validator: (value: any) => {
         //         return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(value);
